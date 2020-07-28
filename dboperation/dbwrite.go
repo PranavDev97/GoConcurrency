@@ -6,7 +6,7 @@ import (
 	_"github.com/go-sql-driver/mysql"
 )
 
-func DBwriter(){
+func DBwriter(datachan chan string){
 	db,err := sql.Open("mysql","root:password@/personal_project");
 	if err!=nil {
 		fmt.Println("db connection error:",err)
@@ -15,10 +15,15 @@ func DBwriter(){
 	if err!=nil {
 		fmt.Println("statement creation failed:",err)
 	}
-	res,err := stmt.Exec("hi");
-	if err!=nil {
-		fmt.Println("insertion failed:",err)
+	for {
+		data:=<-datachan;
+		if data=="endoffile" {
+			break;
+		}
+		_,err := stmt.Exec(data);
+		if err!=nil {
+			fmt.Println("insertion failed:",err)
+		}
 	}
-	fmt.Println(res);
 }
 

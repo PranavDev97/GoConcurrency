@@ -4,17 +4,25 @@ import (
 	"fmt"
 	"encoding/csv"
 	"os"
+	"io"
 )
 
-func FileRead(){
+func FileRead(datachan chan string,exitstatus *string){
 	csvFile,err := os.Open("data.csv");
 	if err != nil {
 		fmt.Println("File open error :",err)
 	}
 	fileData := csv.NewReader(csvFile);
-	data , e :=fileData.Read();
-	if e!=nil {
-		fmt.Println("data read error :",e)
+	for{
+		data , e :=fileData.Read();
+		if e == io.EOF{
+			break;
+		}
+		datachan<-data[0];
+		if e!=nil {
+			fmt.Println("data read error :",e)
+		}
 	}
-	fmt.Println(data[0]);
+	datachan<-"endoffile"
+	*exitstatus="true";
 }
